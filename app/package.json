@@ -1,0 +1,17 @@
+{
+  "name": "socratic-voice-console",
+  "version": "0.2.1",
+  "private": true,
+  "type": "module",
+  "description": "Host launcher for the FastAPI Socratic Voice Console prototype",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "dev": "node preview/server.mjs",
+    "build": "node scripts/build-preview.mjs",
+    "start": "node dist/boot.js",
+    "check": "node --check static/app.js && node --check preview/server.mjs && node --check scripts/build-preview.mjs",
+    "test": "python3 -m pytest"
+  }
+}

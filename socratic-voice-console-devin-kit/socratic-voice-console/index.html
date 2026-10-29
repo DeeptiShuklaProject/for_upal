@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A grounded, voice-enabled professor Q&A console with local and cloud speech providers.">
+  <title>Socratic Voice Console</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#questionInput">Skip to question</a>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Socratic Voice Console home">
+      <svg class="brand-mark" viewBox="0 0 36 36" aria-hidden="true">
+        <path d="M4 18h4l3-9 5 18 5-22 5 26 3-13h3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Socratic<span class="brand-divider">/</span>Voice Console</span>
+    </a>
+    <div class="topbar-actions">
+      <span class="local-badge"><span class="status-dot" aria-hidden="true"></span>Local + cloud</span>
+      <a class="text-link" href="/docs" target="_blank" rel="noreferrer">API docs<span aria-hidden="true"> ↗</span></a>
+      <button class="button button-quiet" id="clearButton" type="button">Clear session</button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <section class="seminar" aria-labelledby="pageTitle">
+      <div class="intro">
+        <p class="eyebrow">Grounded seminar · course notes 01—03</p>
+        <h1 id="pageTitle">Ask the notes.<br>Hear the <em>reasoning.</em></h1>
+        <p class="intro-copy">A voice-enabled consultation with two professor personas. Every answer is grounded in the selected knowledge module, with visible sources and a local speech fallback.</p>
+      </div>
+
+      <section class="transcript-panel" aria-label="Consultation transcript">
+        <div class="panel-heading">
+          <div>
+            <p class="mono-label">Consultation room</p>
+            <p class="active-persona" id="activePersona">Dr. Margaret Holloway</p>
+          </div>
+          <span class="engine-badge" id="engineBadge">Ready</span>
+        </div>
+        <div class="transcript" id="transcript" aria-live="polite" aria-relevant="additions">
+          <article class="message message-professor">
+            <header class="message-header">
+              <span class="message-author">Dr. Margaret Holloway</span>
+              <span class="message-meta">Orientation</span>
+            </header>
+            <p>Welcome to the consultation room. Ask about Raft consensus, attention mechanisms, or the CAP theorem. You can type or use speech recognition in a supported browser.</p>
+          </article>
+        </div>
+        <div class="thinking" id="thinking" hidden aria-live="polite">
+          <span class="thinking-line" aria-hidden="true"></span>
+          <span>Consulting the course notes…</span>
+        </div>
+      </section>
+
+      <div class="suggestions" aria-label="Suggested questions">
+        <span class="mono-label">Try asking</span>
+        <div class="suggestion-row">
+          <button type="button" class="suggestion" data-question="Explain the CAP theorem">CAP theorem</button>
+          <button type="button" class="suggestion" data-question="How does scaled dot-product attention work?">Attention mechanism</button>
+          <button type="button" class="suggestion" data-question="How does Raft protect log safety?">Raft safety</button>
+        </div>
+      </div>
+
+      <div class="error-banner" id="errorBanner" role="alert" hidden></div>
+
+      <form class="composer" id="questionForm">
+        <label class="mono-label" for="questionInput">Your question</label>
+        <textarea id="questionInput" name="question" rows="3" maxlength="2000" placeholder="Ask a precise question about the selected notes…" required></textarea>
+        <div class="composer-footer">
+          <div class="input-actions">
+            <button class="button button-record" id="micButton" type="button" aria-pressed="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3M9 21h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              <span id="micLabel">Speak</span>
+            </button>
+            <span class="keyboard-hint">Ctrl / ⌘ + Enter to send</span>
+          </div>
+          <button class="button button-primary" id="sendButton" type="submit">
+            <span>Ask professor</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <aside class="control-rail" aria-label="Session controls">
+      <section class="control-section">
+        <p class="eyebrow">Session setup</p>
+        <h2>Shape the consultation.</h2>
+        <p class="section-copy">Switch sources, reasoning style, and speech infrastructure without losing the core Q&amp;A loop.</p>
+      </section>
+
+      <section class="control-section">
+        <label class="mono-label" for="knowledgeSelect">Knowledge module</label>
+        <select id="knowledgeSelect" name="knowledge">
+          <option value="all">All course notes</option>
+          <option value="doc_raft">Distributed Consensus with Raft</option>
+          <option value="doc_attention">Neural Attention Mechanisms</option>
+          <option value="doc_cap">The CAP Theorem</option>
+        </select>
+        <p class="field-note" id="knowledgeDescription">Search all three local modules and return the strongest matching sources.</p>
+      </section>
+
+      <fieldset class="control-section persona-fieldset">
+        <legend class="mono-label">Educator persona</legend>
+        <label class="persona-option">
+          <input type="radio" name="persona" value="margaret" checked>
+          <span class="persona-check" aria-hidden="true"></span>
+          <span><strong>Dr. Margaret Holloway</strong><small>Warm · rigorous · analogy-led</small></span>
+        </label>
+        <label class="persona-option">
+          <input type="radio" name="persona" value="christopher">
+          <span class="persona-check" aria-hidden="true"></span>
+          <span><strong>Dr. Christopher Brooks</strong><small>Analytical · measured · Socratic</small></span>
+        </label>
+      </fieldset>
+
+      <section class="control-section provider-grid">
+        <div>
+          <label class="mono-label" for="answerProvider">Answer engine</label>
+          <select id="answerProvider" name="answerProvider">
+            <option value="auto">Automatic</option>
+            <option value="offline">Offline grounded</option>
+            <option value="openai">OpenAI-compatible</option>
+          </select>
+        </div>
+        <div>
+          <label class="mono-label" for="ttsProvider">Voice engine</label>
+          <select id="ttsProvider" name="ttsProvider">
+            <option value="auto">Automatic</option>
+            <option value="browser">Browser speech</option>
+            <option value="elevenlabs">ElevenLabs</option>
+            <option value="voicebox">Voicebox (local)</option>
+            <option value="voicestudio">VoiceStudio (local)</option>
+          </select>
+        </div>
+        <p class="field-note" id="providerNote">Loading provider configuration…</p>
+      </section>
+
+      <section class="control-section voice-monitor" aria-labelledby="voiceMonitorTitle">
+        <div class="monitor-heading">
+          <div>
+            <p class="mono-label">Voice monitor</p>
+            <h3 id="voiceMonitorTitle">Output spectrum</h3>
+          </div>
+          <button class="icon-button" id="stopAudioButton" type="button" aria-label="Stop audio" title="Stop audio">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+          </button>
+        </div>
+        <canvas id="spectrumCanvas" height="112" role="img" aria-label="Audio output spectrum visualizer">Audio spectrum status is described below.</canvas>
+        <p class="field-note" id="voiceModeLabel" aria-live="polite">Waiting for a professor response.</p>
+        <audio id="audioPlayer" controls preload="none" hidden></audio>
+      </section>
+
+      <section class="control-section architecture-note">
+        <p class="mono-label">Execution contract</p>
+        <ul>
+          <li>Sources before synthesis</li>
+          <li>Keys remain server-side</li>
+          <li>Browser speech as fallback</li>
+        </ul>
+      </section>
+    </aside>
+  </main>
+
+  <footer class="footer">
+    <span>FastAPI core · local knowledge · multi-engine speech</span>
+    <span>Session transcript is held in this page only.</span>
+  </footer>
+
+  <script type="module" src="/static/app.js"></script>
+</body>
+</html>

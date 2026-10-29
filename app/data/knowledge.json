@@ -1,0 +1,29 @@
+[
+  {
+    "id": "doc_raft",
+    "topic": "Distributed Consensus with Raft",
+    "summary": "Leader election, log replication, and the safety invariant behind Raft.",
+    "source": "Prototype course notes: Distributed Consensus",
+    "keywords": ["raft", "paxos", "consensus", "leader", "election", "log", "replication", "safety", "state machine"],
+    "check_question": "If two servers disagree about the entry at one log index, which Raft safety guarantee has been violated?",
+    "content": "The Raft consensus algorithm is designed to be more understandable than Paxos. It decomposes consensus into three independent subproblems: Leader Election, Log Replication, and Safety. Raft guarantees that if any server applies a log entry to its state machine, no other server will ever apply a different log entry for the same index."
+  },
+  {
+    "id": "doc_attention",
+    "topic": "Neural Attention Mechanisms",
+    "summary": "Queries, keys, values, scaling, and softmax in scaled dot-product attention.",
+    "source": "Prototype course notes: Neural Attention",
+    "keywords": ["attention", "neural", "query", "queries", "key", "keys", "value", "values", "softmax", "scaled", "dot", "product", "dimension"],
+    "check_question": "Why would omitting the square-root scaling become more problematic as the key dimension increases?",
+    "content": "Scaled Dot-Product Attention operates on query (Q), key (K), and value (V) vectors. The attention weights are computed by taking the inner product of queries and keys, divided by the square root of the dimension of the keys (sqrt(d_k)), followed by a Softmax function to obtain probabilities that scale the value vectors."
+  },
+  {
+    "id": "doc_cap",
+    "topic": "The CAP Theorem",
+    "summary": "Consistency, availability, and partition tolerance in distributed data stores.",
+    "source": "Prototype course notes: Distributed Computing",
+    "keywords": ["cap", "brewer", "consistency", "availability", "partition", "tolerance", "distributed", "store", "packet", "drops"],
+    "check_question": "During a real network partition, which guarantee would your application choose to preserve, and what would it sacrifice?",
+    "content": "Brewer's CAP theorem states that any distributed data store can simultaneously provide at most two of the following three guarantees: Consistency (every read receives the most recent write or an error), Availability (every request receives a non-error response), and Partition Tolerance (the system continues to operate despite arbitrary packet drops or network partitions)."
+  }
+]
